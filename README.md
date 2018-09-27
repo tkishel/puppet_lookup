@@ -11,7 +11,9 @@
 
 ## Description
 
-This module provides the puppet_lookup task, which allows you to run `puppet lookup` via the Console or the command line.
+This module provides the `puppet_lookup` task.
+
+This task allows you to run `puppet lookup` via the Console or the command line.
 
 ## Requirements
 
@@ -19,17 +21,38 @@ This module is compatible with Puppet Enterprise.
 
 ## Usage
 
-To run a puppet_lookup task, use the `task` command, specifying the key you want to retrieve.
+Use the `puppet task run` command, specifying the nodes and the key you want to retrieve:
+
+```
+puppet task run puppet_lookup --nodes master.example.com key=test
+```
+
+Note that the `--nodes` parameter is limited to masters and compile masters.
 
 For example, on the command line, run:
 
 ```
-puppet task run puppet_lookup --nodes $(puppet config print server) key=xxx
+[root@pe-agent ~]# puppet task run puppet_lookup --nodes $(puppet config print server) key=puppet_enterprise::profile::master::java_args
+Starting job ...
+Note: The task will run only on permitted nodes.
+New job ID: 1
+Nodes: 1
+
+Started on master.example.com ...
+Finished on node master.example.com
+  status : success
+  command : puppet lookup puppet_enterprise::profile::master::java_args --node master.example.com --environment production --merge first --render-as json
+  results :
+    Xms : 3072m
+    Xmx : 3072m
+
+Job completed. 1/1 nodes succeeded.
+Duration: 2 sec
 ```
 
 ## Reference
 
-To view the available parameters, on the command line, run:
+To view the available parameters for this task, on the command line, run:
 
 ```
 puppet task show puppet_lookup

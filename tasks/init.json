@@ -1,0 +1,37 @@
+{
+  "description": "Run 'puppet lookup'",
+  "input_method": "stdin",
+  "supports_noop": true,
+  "parameters": {
+    "key": {
+      "description": "The name of the key to lookup",
+      "type": "Pattern[/^[:a-z0-9_]+$/]"
+    },
+    "target": {
+      "description": "The name of the target node, defaults to the local node",
+      "type": "Optional[Pattern[/^[a-z0-9._-]+$/]]"
+    },
+    "environment": {
+      "description": "The name of the environment, defaults to the local environment",
+      "type": "Optional[Pattern[/^[a-z0-9_]+$/]]"
+    },
+    "merge": {
+      "description": "The merge behavior, defaults to 'first'",
+      "type": "Optional[Pattern[/^first|unique|hash|deep$/]]"
+    },
+    "compile": {
+      "description": "Perform a full catalog compilation prior to the lookup",
+      "type": "Optional[Boolean]",
+      "default": false
+    },
+    "explain": {
+      "description": "Explain the details of how the lookup was performed",
+      "type": "Optional[Boolean]",
+      "default": false
+    },
+    "render": {
+      "description": "The output format of the results, defaults to 'json'",
+      "type": "Optional[Pattern[/^s|json|yaml$/]]"
+    }
+  }
+}

@@ -4,34 +4,49 @@
   "supports_noop": true,
   "parameters": {
     "key": {
-      "description": "The name of the key to lookup",
+      "description": "The name of the lookup key",
       "type": "Pattern[/^[:a-z0-9_]+$/]"
     },
     "target": {
-      "description": "The name of the target node, defaults to the local node",
+      "description": "The name of node to look up data for; defaults to the node where the task is run",
       "type": "Optional[Pattern[/^[a-z0-9._-]+$/]]"
     },
     "environment": {
-      "description": "The name of the environment, defaults to the local environment",
+      "description": "The name of the environment, defaults to the local environment of the node where the task is run",
       "type": "Optional[Pattern[/^[a-z0-9_]+$/]]"
-    },
-    "merge": {
-      "description": "The merge behavior, defaults to 'first'",
-      "type": "Optional[Pattern[/^first|unique|hash|deep$/]]"
     },
     "compile": {
       "description": "Perform a full catalog compilation prior to the lookup",
-      "type": "Optional[Boolean]",
+      "type": "Optional[Variant[Boolean,Enum['true','false']]]",
       "default": false
     },
     "explain": {
       "description": "Explain the details of how the lookup was performed",
-      "type": "Optional[Boolean]",
+      "type": "Optional[Variant[Boolean,Enum['true','false']]]",
       "default": false
     },
-    "render": {
+    "explain_options": {
+      "description": "Explain whether a 'lookup_options' hash affects this lookup, and how that hash was assembled",
+      "type": "Optional[Variant[Boolean,Enum['true','false']]]",
+      "default": false
+    },
+    "merge": {
+      "description": "The merge behavior, defaults to 'first'",
+      "type": "Optional[Enum['first','unique','hash','deep']]"
+    },
+    "merge_hash_arrays": {
+      "description": "Can be used with the 'deep' merge strategy. When this flag is used, hashes within arrays are deep-merged with their counterparts by position",
+      "type": "Optional[Variant[Boolean,Enum['true','false']]]",
+      "default": false
+    },
+    "sort_merged_arrays": {
+      "description": "Can be used with the 'deep' merge strategy. When this flag is used, all merged arrays are sorted",
+      "type": "Optional[Variant[Boolean,Enum['true','false']]]",
+      "default": false
+    },
+    "render_as": {
       "description": "The output format of the results, defaults to 'json'",
-      "type": "Optional[Pattern[/^s|json|yaml$/]]"
+      "type": "Optional[Enum['s','json','yaml']]"
     }
   }
 }

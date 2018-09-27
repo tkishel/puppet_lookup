@@ -63,11 +63,8 @@ puppet task show puppet_lookup
 The following `puppet lookup` command parameters are not implemented:
 
 1. `--default`
-1. `--explain-options`
 1. `--facts`
 1. `--knock-out-prefix`
-1. `--merge-hash-arrays`
-1. `--sort-merged-arrays`
 1. `--type`
 
 ## Getting Help

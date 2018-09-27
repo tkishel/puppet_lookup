@@ -10,45 +10,54 @@ Puppet.initialize_settings
 
 # Read parameters, set defaults, and validate values.
 #
-# TDB: --default, --explain-options, --facts, --type --knock-out-prefix, --merge-hash-arrays, --sort-merged-arrays
+# TODO or N/A: --default, --facts, --knock-out-prefix, --type
 
 def read_parameters
-  params = read_stdin
+  input = read_stdin
+  output = {}
 
-  params['key']         = (params['key'])         ? params['key']         : ''
-  params['target']      = (params['target'])      ? params['target']      : Puppet[:certname]
-  params['environment'] = (params['environment']) ? params['environment'] : Puppet[:environment]
-  params['merge']       = (params['merge'])       ? params['merge']       : 'first'
-  params['compile']     = (params['compile'])     ? '--compile'           : ''
-  params['explain']     = (params['explain'])     ? '--explain'           : ''
-  params['render']      = (params['render'])      ? params['render']      : 'json'
+  output['key']                = input['key']
+  output['target']             = (input['target'])             ? input['target']        : Puppet[:certname]
+  output['environment']        = (input['environment'])        ? input['environment']   : Puppet[:environment]
+  output['compile']            = (input['compile'])            ? '--compile'            : ''
+  output['explain']            = (input['explain'])            ? '--explain'            : ''
+  output['explain_options']    = (input['explain_options'])    ? '--explain-options'    : ''
+  output['merge']              = (input['merge'])              ? input['merge']         : 'first'
+  output['merge_hash_arrays']  = (input['merge_hash_arrays'])  ? '--merge-hash-arrays'  : ''
+  output['sort_merged_arrays'] = (input['sort_merged_arrays']) ? '--sort-merged-arrays' : ''
+  output['render_as']          = (input['render_as'])          ? input['render_as']     : 'json'
+
+  # Render the output as plain text when explain is specified, unless an output format is specified.
+  if input['explain'] || input['explain_options']
+    output['render_as'] = 's' unless input['render_as']
+  end
 
   # Validate parameter values or return errors.
 
-  merge_options  = %w[first unique hash deep]
-  render_options = %w[s json yaml]
+  valid_merge_options     = %w[first unique hash deep]
+  valid_render_as_options = %w[s json yaml]
 
-  return_error("Parameter 'key' contains illegal characters")         unless safe_string?(params['key'])
-  return_error("Parameter 'target' contains illegal characters")      unless safe_string?(params['target'])
-  return_error("Parameter 'environment' contains illegal characters") unless safe_string?(params['environment'])
-  return_error("Parameter 'merge' is limited to #{merge_options}")    unless merge_options.include?(params['merge'])
-  return_error("Parameter 'render' is limited to #{render_options}")  unless render_options.include?(params['render'])
+  return_error("Parameter 'key' contains illegal characters")                    unless safe_string?(output['key'])
+  return_error("Parameter 'target' contains illegal characters")                 unless safe_string?(output['target'])
+  return_error("Parameter 'environment' contains illegal characters")            unless safe_string?(output['environment'])
+  return_error("Parameter 'merge' is limited to #{valid_merge_options}")         unless valid_merge_options.include?(output['merge'])
+  return_error("Parameter 'render_as' is limited to #{valid_render_as_options}") unless valid_render_as_options.include?(output['render_as'])
 
-  params
+  output
 end
 
 # Read parameters as JSON from STDIN.
 
 def read_stdin
-  params = {}
+  input = {}
   begin
     Timeout.timeout(3) do
-      params = JSON.parse(STDIN.read)
+      input = JSON.parse(STDIN.read)
     end
   rescue Timeout::Error
     return_error('Cannot read parameters as JSON from STDIN')
   end
-  params
+  input
 end
 
 # Validate strings.
@@ -103,7 +112,7 @@ def return_command_results(params, command_results)
   result = {}
   result[:status]  = 'success'
   result[:command] = command_results[:command]
-  result[:results] = (params['render'] == 'json') ? JSON.parse(command_results[:stdout]) : command_results[:stdout]
+  result[:results] = (params['render-as'] == 'json') ? JSON.parse(command_results[:stdout]) : command_results[:stdout]
   puts result.to_json
   exit 0
 end
@@ -124,12 +133,15 @@ command = 'puppet'
 options = [
   'lookup',
   params['key'],
-  '--node',          params['target'],
-  '--environment',   params['environment'],
-  '--merge',         params['merge'],
-  '--render-as',     params['render'],
+  '--node', params['target'],
+  '--environment', params['environment'],
   params['compile'],
   params['explain'],
+  params['explain_options'],
+  '--merge', params['merge'],
+  params['merge_hash_arrays'],
+  params['sort_merged_arrays'],
+  '--render-as', params['render_as'],
 ]
 
 results = execute_command(command, options)
